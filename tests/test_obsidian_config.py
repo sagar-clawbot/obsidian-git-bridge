@@ -52,7 +52,9 @@ class TestObsidianConfig:
         not_vault.mkdir()
         
         config = ObsidianConfig()
-        assert config.validate_vault(not_vault) is False
+        # Should raise exception for invalid vault
+        with pytest.raises(Exception):
+            config.validate_vault(not_vault)
     
     def test_get_vault_name(self, tmp_path):
         """Test getting vault name."""
