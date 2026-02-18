@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 
-from obsidian_git_bridge.obsidian_config import ObsidianConfig
+from obsidian_git_bridge.wrappers import ObsidianConfig
 
 
 @pytest.fixture

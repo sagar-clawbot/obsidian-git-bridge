@@ -1,45 +1,51 @@
 """Tests for VPS setup generator."""
 
 import pytest
-from pathlib import Path
 
-from obsidian_git_bridge.vps_setup import VPSSetupGenerator
-
-
-@pytest.fixture
-def temp_vault(tmp_path):
-    """Create a temporary vault directory."""
-    vault = tmp_path / "test-vault"
-    vault.mkdir()
-    return vault
-
-
-@pytest.fixture
-def output_dir(tmp_path):
-    """Create output directory."""
-    return tmp_path / "output"
+from obsidian_git_bridge.wrappers import VPSSetupGenerator
 
 
 class TestVPSSetupGenerator:
     """Test VPSSetupGenerator class."""
     
-    def test_generate_cron_script(self, temp_vault, output_dir):
-        """Test cron script generation."""
-        vps = VPSSetupGenerator(temp_vault, output_dir)
-        path = vps.generate_cron_script()
-        
-        assert path.exists()
-        assert path.stat().st_mode & 0o111  # Executable
-        content = path.read_text()
-        assert "#!/bin/bash" in content
-        assert str(temp_vault) in content
+    def test_init(self):
+        """Test initialization."""
+        vps = VPSSetupGenerator("test-vault", "https://github.com/user/repo.git")
+        assert vps.vault_name == "test-vault"
+        assert vps.repo_url == "https://github.com/user/repo.git"
     
-    def test_generate_setup_instructions(self, temp_vault, output_dir):
-        """Test setup instructions generation."""
-        vps = VPSSetupGenerator(temp_vault, output_dir)
-        path = vps.generate_setup_instructions()
+    def test_generate_setup_script(self):
+        """Test setup script generation."""
+        vps = VPSSetupGenerator("test-vault", "https://github.com/user/repo.git")
+        script = vps.generate_setup_script()
         
-        assert path.exists()
-        content = path.read_text()
-        assert "VPS Setup Instructions" in content
-        assert temp_vault.name in content
+        assert "#!/bin/bash" in script
+        assert "test-vault" in script
+        assert "github.com/user/repo.git" in script
+    
+    def test_generate_cron_job(self):
+        """Test cron job generation."""
+        vps = VPSSetupGenerator("test-vault", "https://github.com/user/repo.git")
+        cron = vps.generate_cron_job()
+        
+        assert "*/5 * * * *" in cron
+        assert "test-vault" in cron
+    
+    def test_generate_instructions(self):
+        """Test setup instructions generation."""
+        vps = VPSSetupGenerator("test-vault", "https://github.com/user/repo.git")
+        instructions = vps.generate_instructions()
+        
+        assert "test-vault" in instructions
+        assert "github.com/user/repo.git" in instructions
+    
+    def test_get_full_setup(self):
+        """Test getting complete setup package."""
+        vps = VPSSetupGenerator("test-vault", "https://github.com/user/repo.git")
+        setup = vps.get_full_setup()
+        
+        assert "script" in setup
+        assert "cron" in setup
+        assert "instructions" in setup
+        assert "test-vault" in setup["script"]
+        assert "test-vault" in setup["cron"]

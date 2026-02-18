@@ -56,13 +56,30 @@ class ObsidianConfig:
         """Validate if path is a valid Obsidian vault."""
         return oc.validate_vault(str(path))
 
+    # Alias for test compatibility
+    is_valid_vault = validate_vault
+
     def get_vault_name(self, path: Path) -> str:
         """Get vault name from path."""
         return oc.get_vault_name(str(path))
 
-    def configure_git_plugin(self, path: Path, interval: int = 10) -> dict[str, Any]:
+    def configure_git_plugin(self, path: Optional[Path] = None, interval: int = 10) -> dict[str, Any]:
         """Configure Obsidian Git plugin."""
-        return oc.configure_obsidian_git_plugin(str(path), interval)
+        vault_path = path or self.vault_path
+        if vault_path is None:
+            raise ValueError("Vault path required")
+        return oc.configure_obsidian_git_plugin(str(vault_path), interval)
+
+    def create_gitignore(self, path: Optional[Path] = None) -> Path:
+        """Create Obsidian-specific .gitignore file."""
+        from .git_ops import configure_gitignore
+        
+        vault_path = path or self.vault_path
+        if vault_path is None:
+            raise ValueError("Vault path required")
+        
+        result = configure_gitignore(str(vault_path))
+        return Path(result["path"])
 
 
 class VPSSetupGenerator:
