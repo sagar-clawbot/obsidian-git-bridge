@@ -16,6 +16,11 @@ class GitOperations:
         self.vault_path = vault_path
         self.verbose = verbose
 
+    def is_git_repo(self) -> bool:
+        """Check if vault is already a Git repository."""
+        git_dir = self.vault_path / ".git"
+        return git_dir.exists()
+
     def init_repo(self) -> dict[str, Any]:
         return git_ops.init_git_repo(self.vault_path)
 
