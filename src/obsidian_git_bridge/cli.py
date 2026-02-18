@@ -8,7 +8,7 @@ from rich.console import Console
 from rich.traceback import install as install_traceback
 
 from . import __version__
-from .git_ops import GitOperations
+from .git_operations import GitOperations
 from .obsidian_config import ObsidianConfig
 from .vps_setup import VPSSetupGenerator
 from .doctor import Doctor
